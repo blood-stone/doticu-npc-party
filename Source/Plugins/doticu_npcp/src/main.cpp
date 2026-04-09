@@ -1,5 +1,5 @@
 /*
-    Copyright © 2020 r-neal-kelly, aka doticu
+    Copyright Â© 2020 r-neal-kelly, aka doticu
 */
 
 #include <ShlObj.h>
@@ -492,6 +492,11 @@ namespace doticu_npcp { namespace Main {
 
         if (!g_papyrus) {
             _FATALERROR(DOTICU_NPCP_PRINT_PREFIX "Could not get papyrus interface.");
+            return false;
+        }
+
+        if (!Offsets::Initialize()) {
+            _FATALERROR(DOTICU_NPCP_PRINT_PREFIX "Could not load relocation data for this Skyrim runtime.");
             return false;
         }
 

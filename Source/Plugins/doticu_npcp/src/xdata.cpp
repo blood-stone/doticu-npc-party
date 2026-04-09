@@ -1,5 +1,5 @@
 /*
-    Copyright � 2020 r-neal-kelly, aka doticu
+    Copyright ï¿½ 2020 r-neal-kelly, aka doticu
 */
 
 #include "offsets.h"
@@ -220,9 +220,6 @@ namespace doticu_npcp { namespace Papyrus {
 
 namespace doticu_npcp { namespace XData {
 
-    const RelocPtr<uintptr_t> xinteraction_vtbl(0x0152F540);
-    const RelocPtr<uintptr_t> interaction_vtbl(0x0165EC98);
-
     ExtraCount *Create_Count(UInt32 count) {
         ExtraCount *xdata = ExtraCount::Create();
         NPCP_ASSERT(xdata);
@@ -238,7 +235,8 @@ namespace doticu_npcp { namespace XData {
         if (interactee && interactor) {
             Interaction* interaction = (Interaction*)Heap_Allocate(sizeof(Interaction));
             memset(interaction, 0, sizeof(Interaction));
-            ((uintptr_t*)interaction)[0] = interaction_vtbl.GetUIntPtr();
+            ((uintptr_t*)interaction)[0] =
+                Offsets::Extra::INTERACTION_V_TABLE + RelocationManager::s_baseAddr;
             NPCP_ASSERT(interaction);
 
             interaction->interactee_handle = interactee->CreateRefHandle();
@@ -252,8 +250,14 @@ namespace doticu_npcp { namespace XData {
             Destroy_Interaction(interactee);
             Destroy_Interaction(interactor);
 
-            XInteraction* xinteraction_a = (XInteraction*)XData_t::Create(sizeof(XInteraction), xinteraction_vtbl.GetUIntPtr());
-            XInteraction* xinteraction_b = (XInteraction*)XData_t::Create(sizeof(XInteraction), xinteraction_vtbl.GetUIntPtr());
+            XInteraction* xinteraction_a = (XInteraction*)XData_t::Create(
+                sizeof(XInteraction),
+                Offsets::Extra::XINTERACTION_V_TABLE + RelocationManager::s_baseAddr
+            );
+            XInteraction* xinteraction_b = (XInteraction*)XData_t::Create(
+                sizeof(XInteraction),
+                Offsets::Extra::XINTERACTION_V_TABLE + RelocationManager::s_baseAddr
+            );
             NPCP_ASSERT(xinteraction_a && xinteraction_b);
 
             xinteraction_a->interaction = interaction;

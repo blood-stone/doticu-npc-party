@@ -1,178 +1,84 @@
 /*
-    Copyright © 2020 r-neal-kelly, aka doticu
+    Copyright Â© 2020 r-neal-kelly, aka doticu
 */
 
 #pragma once
+
+#include <cstdint>
 
 #include "skse64_common/Relocation.h"
 
 // credit goes to meh321 of 'Address Library for SKSE Plugins' for the offsets
 // and also Ryan-rsm-McKenzie of CommonLibSSE for the ids
+#define DOTICU_NPCP_OFFSETS(X) \
+    X(Actor, ADD_SPELL, 0x0062F560, 37771ULL) \
+    X(Actor, EVALUATE_PACKAGE, 0x005DB310, 36407ULL) \
+    X(Actor, QUEUE_NI_NODE_UPDATE, 0x00693110, 39181ULL) \
+    X(Actor, UPDATE_3D_MODEL, 0x00650DF0, 38404ULL) \
+    X(Actor_Equipper, SELF, 0x02EC4838, 514494ULL) \
+    X(Actor_Equipper, EQUIP_ITEM, 0x00637A80, 37938ULL) \
+    X(Actor_Equipper, UNEQUIP_ITEM, 0x00638190, 37945ULL) \
+    X(Actor_Equipper, RIGHT_HAND_SLOT, 0x00331620, 23151ULL) \
+    X(Actor_Equipper, LEFT_HAND_SLOT, 0x003315F0, 23150ULL) \
+    X(Actor_Equipper, EITHER_HAND_SLOT, 0x00331650, 23152ULL) \
+    X(Virtual_Arguments, RESIZE, 0x00920360, 53105ULL) \
+    X(Array, DESTROY, 0x01241E40, 97723ULL) \
+    X(Container_Changes, CTOR, 0x001D9200, 15812ULL) \
+    X(Container_Changes, DTOR, 0x001D92F0, 15813ULL) \
+    X(CRC32, BY_SIZE, 0x00C06490, 66962ULL) \
+    X(CRC32, BY_32, 0x00C064F0, 66963ULL) \
+    X(CRC32, BY_64, 0x00C06570, 66964ULL) \
+    X(Dialogue_Info, CTOR, 0x0056C9D0, 34413ULL) \
+    X(Extra, CAN_TALK_TO_PLAYER_V_TABLE, 0x0152C740, 229596ULL) \
+    X(Extra, CONTAINER_CHANGES_V_TABLE, 0x0152F260, 229886ULL) \
+    X(Extra, FACTION_CHANGES_V_TABLE, 0x0152C800, 229602ULL) \
+    X(Extra, FLAGS_V_TABLE, 0x0152CBC0, 229632ULL) \
+    X(Extra, GHOST_V_TABLE, 0x0152F2A0, 229888ULL) \
+    X(Extra, TEXT_DISPLAY_V_TABLE, 0x0152CAE0, 229625ULL) \
+    X(Extra, OUTFIT_ITEM_V_TABLE, 0x0152C1E0, 229553ULL) \
+    X(Extra, COUNT_V_TABLE, 0x0152BFE0, 229537ULL) \
+    X(Extra, XINTERACTION_V_TABLE, 0x0152F540, 229909ULL) \
+    X(Extra, INTERACTION_V_TABLE, 0x0165EC98, 261448ULL) \
+    X(Form_Factory, IS_CREATED, 0x01EC3CB3, 514349ULL) \
+    X(Form_Factory, FACTORIES, 0x01EC3CE0, 514355ULL) \
+    X(Magic_Target, HAS_MAGIC_EFFECT, 0x005530D0, 33733ULL) \
+    X(Object, INCREMENT_LOCK, 0x01234360, 97468ULL) \
+    X(Object, DECREMENT_LOCK, 0x01234410, 97469ULL) \
+    X(Object, DESTROY, 0x01233670, 97462ULL) \
+    X(Object_Policy, BIND_OBJECT, 0x0122DAD0, 97379ULL) \
+    X(Package, BOOL_VALUE, 0x01605DE0, 252944ULL) \
+    X(Package, INT_VALUE, 0x016060A8, 252946ULL) \
+    X(Package, FLOAT_VALUE, 0x01605F40, 252945ULL) \
+    X(Package, LOCATION_VALUE, 0x01606520, 252956ULL) \
+    X(Package, SINGLE_REFERENCE_VALUE, 0x016072A0, 253026ULL) \
+    X(Package, TOPIC_VALUE, 0x016073F8, 253033ULL) \
+    X(Process_Lists, SELF, 0x01EBEAD0, 514167ULL) \
+    X(Process_Lists, STOP_COMBAT_ALARM, 0x006D9490, 40330ULL) \
+    X(Quest, START, 0x00370910, 24481ULL) \
+    X(Reference, ADD_ITEM, 0x00993100, 55616ULL) \
+    X(Reference, LOOKUP_REFERENCE_BY_HANDLE1, 0x001328A0, 12203ULL) \
+    X(Reference, LOOKUP_REFERENCE_BY_HANDLE2, 0x001329D0, 12204ULL) \
+    X(Reference, PLACE_AT_ME, 0x009951F0, 55672ULL) \
+    X(Reference, PLAY_ANIMATION, 0x00189E30, 14189ULL) \
+    X(Reference, WORLDSPACE, 0x00299750, 19389ULL) \
+    X(Relationships, SELF, 0x01DD3EF8, 502260ULL) \
+    X(Relationships, GET_RELATIONSHIP_RANK, 0x00345ED0, 23624ULL) \
+    X(Relationships, SET_RELATIONSHIP_RANK, 0x00345B80, 23623ULL) \
+    X(Script, EXECUTE, 0x002E75F0, 21416ULL) \
+    X(String, CREATE, 0x00C28BF0, 67819ULL) \
+    X(String, DESTROY, 0x00C28D40, 67822ULL) \
+    X(String, SET, 0x00C28D60, 67823ULL) \
+    X(Variable, COPY, 0x01236E50, 97509ULL) \
+    X(Variable, DESTROY, 0x01236D10, 97508ULL)
 
-// this is for version 1.5.97.0 only. use the ids in comments for other versions.
-// as much as possible we need to gather all offsets that we use and get their id,
-// so it's easier to update if we get an new version of Skyrim
 namespace doticu_npcp { namespace Offsets {
 
-    namespace Actor {
+    bool Initialize();
+    bool Is_Initialized();
 
-        constexpr uintptr_t ADD_SPELL                   = 0x0062F560; // 37771
-        constexpr uintptr_t EVALUATE_PACKAGE            = 0x005DB310; // 36407
-        constexpr uintptr_t QUEUE_NI_NODE_UPDATE        = 0x00693110; // 39181
-        constexpr uintptr_t UPDATE_3D_MODEL             = 0x00650DF0; // 38404
-
-    }
-
-    namespace Actor_Equipper {
-
-        constexpr uintptr_t SELF                        = 0x02EC4838; // 514494
-        constexpr uintptr_t EQUIP_ITEM                  = 0x00637A80; // 37938
-        constexpr uintptr_t UNEQUIP_ITEM                = 0x00638190; // 37945
-        constexpr uintptr_t RIGHT_HAND_SLOT             = 0x00331620; // 23151
-        constexpr uintptr_t LEFT_HAND_SLOT              = 0x003315F0; // 23150
-        constexpr uintptr_t EITHER_HAND_SLOT            = 0x00331650; // 23152
-
-    }
-
-    namespace Virtual_Arguments {
-
-        constexpr uintptr_t RESIZE                      = 0x00920360; // 53105
-
-    }
-
-    namespace Array {
-
-        constexpr uintptr_t DESTROY                     = 0x01241E40; // 97723
-
-    }
-
-    namespace Container_Changes {
-
-        constexpr uintptr_t CTOR                        = 0x001D9200; // 15812
-        constexpr uintptr_t DTOR                        = 0x001D92F0; // 15813
-
-    }
-
-    namespace CRC32 {
-
-        constexpr uintptr_t BY_SIZE                     = 0x00C06490; // 66962
-        constexpr uintptr_t BY_32                       = 0x00C064F0; // 66963
-        constexpr uintptr_t BY_64                       = 0x00C06570; // 66964
-
-    }
-
-    namespace Dialogue_Info {
-
-        constexpr uintptr_t CTOR                        = 0x0056C9D0; // 34413
-
-    }
-
-    namespace Extra {
-
-        constexpr uintptr_t CAN_TALK_TO_PLAYER_V_TABLE  = 0x0152C740; // 229596
-        constexpr uintptr_t CONTAINER_CHANGES_V_TABLE   = 0x0152F260; // 229886
-        constexpr uintptr_t FACTION_CHANGES_V_TABLE     = 0x0152C800; // 229602
-        constexpr uintptr_t FLAGS_V_TABLE               = 0x0152CBC0; // 229632
-        constexpr uintptr_t GHOST_V_TABLE               = 0x0152F2A0; // 229888
-        constexpr uintptr_t TEXT_DISPLAY_V_TABLE        = 0x0152CAE0; // 229625
-        constexpr uintptr_t OUTFIT_ITEM_V_TABLE         = 0x0152c1e0; // 229553
-        constexpr uintptr_t COUNT_V_TABLE               = 0x0152BFE0; // 229537
-
-    }
-
-    namespace Form_Factory {
-
-        constexpr uintptr_t IS_CREATED                  = 0x1EC3CB3; // 514349
-        constexpr uintptr_t FACTORIES                   = 0x1EC3CE0; // 514355
-
-    }
-
-    namespace Magic_Target {
-
-        constexpr uintptr_t HAS_MAGIC_EFFECT            = 0x005530D0; // 33733
-
-    }
-
-    namespace Object {
-
-        constexpr uintptr_t INCREMENT_LOCK              = 0x01234360; // 97468
-        constexpr uintptr_t DECREMENT_LOCK              = 0x01234410; // 97469
-        constexpr uintptr_t DESTROY                     = 0x01233670; // 97462
-
-    }
-
-    namespace Object_Policy {
-
-        constexpr uintptr_t BIND_OBJECT                 = 0x0122DAD0; // 97379
-
-    }
-
-    namespace Package {
-
-        constexpr uintptr_t BOOL_VALUE                  = 0x01605DE0; // 252944
-        constexpr uintptr_t INT_VALUE                   = 0x016060A8; // 252946
-        constexpr uintptr_t FLOAT_VALUE                 = 0x01605F40; // 252945
-        constexpr uintptr_t LOCATION_VALUE              = 0x01606520; // 252956
-        constexpr uintptr_t SINGLE_REFERENCE_VALUE      = 0x016072A0; // 253026
-        constexpr uintptr_t TOPIC_VALUE                 = 0x016073F8; // 253033
-
-    }
-
-    namespace Process_Lists {
-
-        constexpr uintptr_t SELF                        = 0x01EBEAD0; // 514167
-        constexpr uintptr_t STOP_COMBAT_ALARM           = 0x006D9490; // 40330
-
-    }
-
-    namespace Quest {
-
-        //constexpr uintptr_t CLEAR_ALL_ALIASES         = 0x003745D0; // 24520
-        //constexpr uintptr_t RESET_ALIAS_HASHMAP       = 0x00374880; // 24521
-        //constexpr uintptr_t FORCE_REFERENCE_TO        = 0x00375050; // 24523
-
-        constexpr uintptr_t START                       = 0x00370910; // 24481
-
-    }
-
-    namespace Reference {
-
-        constexpr uintptr_t ADD_ITEM                    = 0x00993100; // 55616
-        constexpr uintptr_t LOOKUP_REFERENCE_BY_HANDLE1 = 0x001328A0; // 12203
-        constexpr uintptr_t LOOKUP_REFERENCE_BY_HANDLE2 = 0x001329D0; // 12204
-        constexpr uintptr_t PLACE_AT_ME                 = 0x009951F0; // 55672
-        constexpr uintptr_t PLAY_ANIMATION              = 0x00189E30; // 14189
-        constexpr uintptr_t WORLDSPACE                  = 0x00299750; // 19389
-
-    }
-
-    namespace Relationships {
-
-        constexpr uintptr_t SELF                        = 0x01DD3EF8; // 502260
-        constexpr uintptr_t GET_RELATIONSHIP_RANK       = 0x00345ED0; // 23624
-        constexpr uintptr_t SET_RELATIONSHIP_RANK       = 0x00345B80; // 23623
-
-    }
-
-    namespace Script {
-
-        constexpr uintptr_t EXECUTE                     = 0x002E75F0; // 21416
-
-    }
-
-    namespace String {
-
-        constexpr uintptr_t CREATE                      = 0x00C28BF0; // 67819
-        constexpr uintptr_t DESTROY                     = 0x00C28D40; // 67822
-        constexpr uintptr_t SET                         = 0x00C28D60; // 67823
-
-    }
-
-    namespace Variable {
-
-        constexpr uintptr_t COPY                        = 0x01236E50; // 97509
-        constexpr uintptr_t DESTROY                     = 0x01236D10; // 97508
-
-    }
+    #define DOTICU_NPCP_DECLARE_OFFSET(NAMESPACE_, NAME_, FALLBACK_, ID_) \
+        namespace NAMESPACE_ { extern uintptr_t NAME_; }
+    DOTICU_NPCP_OFFSETS(DOTICU_NPCP_DECLARE_OFFSET)
+    #undef DOTICU_NPCP_DECLARE_OFFSET
 
 }}
