@@ -1,5 +1,5 @@
-/*
-    Copyright � 2020 r-neal-kelly, aka doticu
+﻿/*
+    Copyright © 2020 r-neal-kelly, aka doticu
 */
 
 #include "consts.h"
@@ -789,6 +789,9 @@ namespace doticu_npcp { namespace Papyrus { namespace MCM {
             current_page = Current_Page();
         }
 
+        Utils::Print((std::string("MCM building page: ") +
+                      (current_page && current_page.data && current_page.data[0] ? current_page.data : "<default>")).c_str());
+
         auto Is_Page = [&current_page](const char* page)->Bool_t
         {
             return String2::Is_Same_Caseless(current_page, page);
@@ -1181,3 +1184,4 @@ namespace doticu_npcp { namespace Papyrus { namespace MCM {
     }
 
 }}}
+

@@ -27,5 +27,63 @@ The bundled Address Library archive in this repo already includes `versionlib-1-
 
 ## Notes
 
-- This repo still does not include the external SKSE source tree, so the project cannot compile until that dependency is added locally.
+- Before building `doticu_npcp`, build these SKSE libraries once in `Release x64`:
+  - `src\common\common\common_vc14.vcxproj`
+  - `src\skse64\skse64_common\skse64_common.vcxproj`
+  - `src\skse64\skse64\skse64.vcxproj` as `Release_Lib_VC142|x64`
+- The plugin project links directly against the built library outputs from those projects.
+- The post-build copy step now skips itself if no local `SKSE\Plugins` folder exists.
 - The plugin source has been updated so its own hard-coded relocation points now resolve through Address Library IDs instead of staying fixed to `1.5.97`.
+
+## Build From A Shell
+
+Visual Studio's GUI can cache stale solution settings on older SKSE projects. If the IDE starts insisting on the wrong SDK, toolset, or `Win32`, use the Visual Studio developer shell instead.
+
+From `Developer PowerShell for Visual Studio`, run:
+
+```powershell
+& 'C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe' `
+  'D:\repository\2026\doticu-npc-party\Source\Plugins\doticu_npcp\doticu_npcp.sln' `
+  /t:doticu_npcp /p:Configuration=Release /p:Platform=x64
+```
+
+That bypasses most of the GUI state issues and forces the expected `Release|x64` build.
+
+## Papyrus / MCM Scripts
+
+The MCM root script lives at `Source\Scripts\doticu_npcp_mcm.psc`. Rebuilding it is useful when the MCM opens but does not populate correctly.
+
+The local Papyrus compiler can live under `tools\Papyrus`, but it is intentionally ignored by git because it is a machine-local tool drop.
+
+To compile the MCM script from a shell, you need:
+
+- `tools\Papyrus\PapyrusCompiler.exe`
+- `tools\Papyrus\TESV_Papyrus_Flags.flg`
+- Skyrim/vanilla script sources
+- SKSE script sources
+- SkyUI script headers, especially `SKI_ConfigBase.psc`
+
+The compiler alone is not enough for `doticu_npcp_mcm.psc`, because that script extends `SKI_ConfigBase`.
+
+Recommended local source layout:
+
+- `Source\Scripts`
+- `skse64_2_02_03\skse64_2_02_03\Data\Scripts\Source`
+- a local SkyUI headers/source folder containing `SKI_ConfigBase.psc`
+
+Example shell command once those sources exist:
+
+```powershell
+& 'D:\repository\2026\doticu-npc-party\tools\Papyrus\PapyrusCompiler.exe' `
+  'D:\repository\2026\doticu-npc-party\Source\Scripts\doticu_npcp_mcm.psc' `
+  -f='D:\repository\2026\doticu-npc-party\tools\Papyrus\TESV_Papyrus_Flags.flg' `
+  -i='D:\repository\2026\doticu-npc-party\Source\Scripts;D:\repository\2026\doticu-npc-party\skse64_2_02_03\skse64_2_02_03\Data\Scripts\Source;D:\path\to\SkyUI\Scripts\Source' `
+  -o='D:\repository\2026\doticu-npc-party\scripts'
+```
+
+If the MCM still misbehaves after rebuilding the script, check:
+
+- `Documents\My Games\Skyrim Special Edition\SKSE\doticu_npcp.log`
+- `Documents\My Games\Skyrim Special Edition\SKSE\skse64.log`
+
+The DLL now logs `MCM building page: ...` when native page generation runs, which helps separate a Papyrus-side problem from a DLL-side one.

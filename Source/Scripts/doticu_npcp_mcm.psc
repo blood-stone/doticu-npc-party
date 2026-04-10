@@ -1,12 +1,16 @@
-; Copyright © 2020 r-neal-kelly, aka doticu
+﻿; Copyright Â© 2020 r-neal-kelly, aka doticu
 
 Scriptname doticu_npcp_mcm extends SKI_ConfigBase
 
 string p_current_page = ""
 
-event OnConfigOpen()
+int function GetVersion()
+    return 1
+endFunction
+
+function InitializeConfig()
     ModName = " NPC Party "
-    
+
     Pages = Utility.CreateStringArray(9, "")
     Pages[0] = " Followers "
     Pages[1] = " Members "
@@ -17,6 +21,18 @@ event OnConfigOpen()
     Pages[6] = " Settings "
     Pages[7] = " Hotkeys "
     Pages[8] = " Logs "
+endFunction
+
+event OnConfigInit()
+    InitializeConfig()
+endEvent
+
+event OnVersionUpdate(int version)
+    InitializeConfig()
+endEvent
+
+event OnConfigOpen()
+    InitializeConfig()
 endEvent
 
 event OnPageReset(String current_page) native
@@ -29,3 +45,4 @@ event OnOptionInputAccept(int option, string value) native
 event OnOptionKeymapChange(int option, int key_code, string conflict, string conflicting_mod) native
 event OnOptionDefault(int option) native
 event OnOptionHighlight(int option) native
+

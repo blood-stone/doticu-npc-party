@@ -7,6 +7,7 @@
 #include "skse64_common/skse_version.h"
 
 #include "skse64/GameData.h"
+#include "skse64/PluginAPI.h"
 
 #include "active_magic_effects.h"
 #include "actor_base2.h"
@@ -601,6 +602,23 @@ namespace doticu_npcp { namespace Main {
 }}
 
 extern "C" {
+
+    __declspec(dllexport) SKSEPluginVersionData SKSEPlugin_Version =
+    {
+        SKSEPluginVersionData::kVersion,
+
+        1,
+        "doticu_npcp",
+
+        "r-neal-kelly",
+        "",
+
+        0,
+        0,
+        { RUNTIME_VERSION_1_6_640, 0 },
+
+        0,
+    };
 
     bool SKSEPlugin_Query(const SKSEInterface* skse, PluginInfo* info)
     {
